@@ -11,6 +11,7 @@ URL = "https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=
 BRIGHTNESS = 0.5
 VERBOSE = False
 LED_SINGLETON = None
+NUM_LED = 49
 
 class Station:
     icao = ""
@@ -105,10 +106,9 @@ def updateLEDs(stationDict):
 def getLeds():
     global LED_SINGLETON
     if LED_SINGLETON is None:
-        numLed = 49
         clk = 18
         dout = 23
-        LED_SINGLETON = Adafruit_WS2801.WS2801Pixels(numLed, clk=clk, do=dout)
+        LED_SINGLETON = Adafruit_WS2801.WS2801Pixels(NUM_LED, clk=clk, do=dout)
         print "Created strip of {} LEDs".format(LED_SINGLETON.count())
     return LED_SINGLETON
 
@@ -129,7 +129,7 @@ def main(args):
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t","--testmode", dest="testmode", choices=["vfr","mvfr","ifr","lifr","all"])
+    parser.add_argument("-t","--testmode", dest="testmode", choices=["vfr","mvfr","ifr","lifr","all", "white", "off"])
     parser.add_argument("-v","--verbose", action="store_true")
     args = parser.parse_args()
     
@@ -148,6 +148,12 @@ if __name__ == "__main__":
     elif args.testmode == "lifr":
         print "RUNNING IN LIFR TEST MODE"
         setAllLeds(Station.LIFR_COLOR)
+    elif args.testmode == "white":
+        print "RUNNING IN WHITE TEST MODE"
+        setAllLeds((255,255,255))
+    elif args.testmode == "off":
+        print "TURNING OFF ALL LIGHTS"
+        setAllLeds((0,0,0))
     elif args.testmode == "all":
         print "RUNNING ALL COLORS"
         setAllLeds(Station.VFR_COLOR)
