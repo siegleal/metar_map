@@ -1,5 +1,4 @@
 import requests
-from enum import Enum
 import xml.etree.ElementTree as et
 import Adafruit_WS2801
 import Adafruit_GPIO.SPI as SPI
@@ -43,7 +42,7 @@ class Station:
             return self.LIFR_COLOR
         else:
             if VERBOSE:
-                print "No category found for {}".format(self.icao)
+                print("No category found for {}".format(self.icao))
             return self.NONE_COLOR
 
     def __repr__(self):
@@ -59,11 +58,11 @@ def readStations(filename):
         if line[0] != '#':
             split = line.split()
             if len(split) != 2:
-                print "Error encountered with line \"{}\"".format(line)
+                print("Error encountered with line \"{}\"".format(line))
                 continue
             numRead = numRead + 1
             stations.append((split[0], int(split[1])))
-    print "{} stations read from {}".format(numRead, filename)
+    print("{} stations read from {}".format(numRead, filename))
     f.close()
     return stations
 
@@ -72,13 +71,13 @@ def createStations(stationList):
     for s in stationList:
         icao, pos = s
         sDict[icao] = Station(icao, pos)
-    print "{} Stations created".format(len(sDict))
+    print("{} Stations created".format(len(sDict)))
     return sDict
 
 def getMetars(stationDict):
     fullUrl = URL.format(','.join(map(lambda s: s.icao, stationDict.values())))
     if VERBOSE:
-        print "Full url: {}".format(fullUrl)
+        print("Full url: {}".format(fullUrl))
     r = requests.get(fullUrl)
     root = et.fromstring(r.content)
     # iterate over all metars
@@ -88,11 +87,11 @@ def getMetars(stationDict):
         station_id = metar.find('station_id').text
         flight_category = metar.find('flight_category').text
         if VERBOSE:
-            print station_id, flight_category
+            print(station_id, flight_category)
 
         stationDict[station_id].setFlightRules(flight_category)
 
-    print "Downloaded {} METARS".format(num)
+    print("Downloaded {} METARS".format(num))
 
 def updateLEDs(stationDict):
     leds = getLeds()
@@ -110,7 +109,7 @@ def getLeds():
         clk = 18
         dout = 23
         LED_SINGLETON = Adafruit_WS2801.WS2801Pixels(NUM_LED, clk=clk, do=dout)
-        print "Created strip of {} LEDs".format(LED_SINGLETON.count())
+        print("Created strip of {} LEDs".format(LED_SINGLETON.count()))
     return LED_SINGLETON
 
 def setAllLeds(color):
@@ -139,25 +138,25 @@ if __name__ == "__main__":
         VERBOSE = True
     
     if args.testmode == "vfr":
-        print "RUNNING IN VFR TEST MODE"
+        print("RUNNING IN VFR TEST MODE")
         setAllLeds(Station.VFR_COLOR)
     elif args.testmode == "mvfr":
-        print "RUNNING IN MVFR TEST MODE"
+        print("RUNNING IN MVFR TEST MODE")
         setAllLeds(Station.MVFR_COLOR)
     elif args.testmode == "ifr":
-        print "RUNNING IN IFR TEST MODE"
+        print("RUNNING IN IFR TEST MODE")
         setAllLeds(Station.IFR_COLOR)
     elif args.testmode == "lifr":
-        print "RUNNING IN LIFR TEST MODE"
+        print("RUNNING IN LIFR TEST MODE")
         setAllLeds(Station.LIFR_COLOR)
     elif args.testmode == "white":
-        print "RUNNING IN WHITE TEST MODE"
+        print("RUNNING IN WHITE TEST MODE")
         setAllLeds((255,255,255))
     elif args.testmode == "off":
-        print "TURNING OFF ALL LIGHTS"
+        print("TURNING OFF ALL LIGHTS")
         setAllLeds((0,0,0))
     elif args.testmode == "all":
-        print "RUNNING ALL COLORS"
+        print("RUNNING ALL COLORS")
         setAllLeds(Station.VFR_COLOR)
         time.sleep(2)
         setAllLeds(Station.MVFR_COLOR)
