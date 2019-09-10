@@ -8,10 +8,10 @@ import sys
 import argparse
 
 URL = "https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=xml&stationString={}&mostRecentForEachStation=constraint&hoursBeforeNow=3"
-BRIGHTNESS = 0.5
+BRIGHTNESS = 0.25
 VERBOSE = False
 LED_SINGLETON = None
-NUM_LED = 49
+NUM_LED = 99
 
 class Station:
     icao = ""
@@ -27,6 +27,7 @@ class Station:
     def __init__(self, icao, pos):
         self.icao = icao
         self.position = pos
+        self.flight_rules = "NONE"
 
     def setFlightRules(self, flight_rules):
         self.flight_rules = flight_rules
@@ -122,6 +123,7 @@ def setAllLeds(color):
 
 def main(args):
     stationList = readStations("west_airports.txt")
+    stationList.extend(readStations("east_airports.txt"))
     stationDict = createStations(stationList)
     getMetars(stationDict)
     updateLEDs(stationDict)
